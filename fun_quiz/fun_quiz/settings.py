@@ -9,8 +9,11 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
-
+import environ
 from pathlib import Path
+
+env = environ.Env(DEBUG=(bool, True))
+env.read_env(env.str('ENV_PATH', '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,6 +25,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '79-j^vtt55o%%m=xz%g=6!^e#e!v^6xep+(v4p^iyyg!fbrov0'
 
+COGNITO_AWS_REGION = env('COGNITO_AWS_REGION')
+COGNITO_USER_POOL = env('COGNITO_USER_POOL')
+COGNITO_AUDIENCE = env('COGNITO_AUDIENCE')
+
+AUTH_USER_MODEL = 'user.User'
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -31,6 +40,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'user.apps.UserConfig',
     'trivia.apps.TriviaConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,6 +60,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'django_cognito_jwt.JSONWebTokenAuthentication',
+    ]
+}
 
 ROOT_URLCONF = 'fun_quiz.urls'
 
